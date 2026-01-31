@@ -18,8 +18,8 @@
 ```mermaid
 graph LR
     subgraph Browser [Chrome 浏览器]
-        User[用户] -->|点击分析| Ext[侧边栏插件 (SidePanel)]
-        Ext -->|获取当前 URL| Tab[当前页面 (GMGN)]
+        User[用户] -->|点击分析| Ext["侧边栏插件 (SidePanel)"]
+        Ext -->|获取当前 URL| Tab["当前页面 (GMGN)"]
     end
     
     subgraph LocalHost [本地环境]
