@@ -16,13 +16,13 @@ class GmgnScraperTool(BaseTool):
         "properties": {
             "token_address": {
                 "type": "string",
-                "description": "The contract address (CA) of the token."
+                "description": "The contract address (CA) of the token, OR the full GMGN.ai URL (e.g., https://gmgn.ai/sol/token/xyz)."
             },
             "chain": {
                 "type": "string",
                 "enum": ["sol", "bsc", "eth", "base", "blast", "tron"],
                 "default": "sol",
-                "description": "The blockchain network code (e.g., sol, bsc, eth)."
+                "description": "The blockchain network code. Ignored if a full URL is provided."
             }
         },
         "required": ["token_address"]
@@ -31,29 +31,42 @@ class GmgnScraperTool(BaseTool):
     async def execute(self, token_address: str, chain: str = "sol") -> ToolResult:
         import re
         
-        # 链与地址格式的校验逻辑
-        is_evm = chain in ["bsc", "eth", "base", "blast"]
-        is_sol = chain == "sol"
-        is_tron = chain == "tron"
+        # 1. URL Mode
+        if token_address.startswith("http"):
+            url = token_address
+            # Optional: Extract chain/address for logging or validation, but we trust the URL primarily
+            print(f"🥄 SpoonOS Tool: Using direct URL: {url}")
+            # Basic validation to ensure it's gmgn
+            if "gmgn.ai" not in url:
+                 return ToolResult(error="Error: The provided URL is not a valid GMGN.ai URL.")
+        else:
+            # 2. Address Mode (Legacy)
+            # 链与地址格式的校验逻辑
+            is_evm = chain in ["bsc", "eth", "base", "blast"]
+            is_sol = chain == "sol"
+            is_tron = chain == "tron"
 
-        valid = False
-        if is_sol:
-            # Solana: Base58, 32-44 chars
-            if re.match(r'^[1-9A-HJ-NP-Za-km-z]{32,44}$', token_address):
-                valid = True
-        elif is_evm:
-            # EVM: Hex, starts with 0x, 42 chars total
-            if re.match(r'^0x[a-fA-F0-9]{40}$', token_address):
-                valid = True
-        elif is_tron:
-            # Tron: Starts with T, 34 chars
-            if re.match(r'^T[a-zA-Z0-9]{33}$', token_address):
-                valid = True
+            valid = False
+            if is_sol:
+                # Solana: Base58, 32-44 chars
+                if re.match(r'^[1-9A-HJ-NP-Za-km-z]{32,44}$', token_address):
+                    valid = True
+            elif is_evm:
+                # EVM: Hex, starts with 0x, 42 chars total
+                if re.match(r'^0x[a-fA-F0-9]{40}$', token_address):
+                    valid = True
+            elif is_tron:
+                # Tron: Starts with T, 34 chars
+                if re.match(r'^T[a-zA-Z0-9]{33}$', token_address):
+                    valid = True
+            
+            if not valid:
+                return ToolResult(error=f"Error: Invalid token address format for chain '{chain}'.")
+
+            url = f"https://gmgn.ai/{chain}/token/{token_address}"
+            print(f"🥄 SpoonOS Tool: Constructed URL {url} from address")
         
-        if not valid:
-            return ToolResult(error=f"Error: Invalid token address format for chain '{chain}'.")
-
-        url = f"https://gmgn.ai/{chain}/token/{token_address}"
+        # Common Scraper Logic
         print(f"🥄 SpoonOS Tool: Navigating to {url}...")
         
         async with async_playwright() as p:

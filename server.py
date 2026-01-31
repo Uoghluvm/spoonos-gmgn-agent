@@ -86,7 +86,7 @@ Analyze the data strictly based on this structure.""",
             llm=chat_bot
         )
         
-        prompt = f"请分析这个 GMGN 页面对应的代币数据: {request.url}。"
+        prompt = f"请分析这个 GMGN 页面对应的代币数据: {request.url}。可以直接将此 URL 传给工具进行抓取。"
         print(f"🤖 Agent 收到请求: {prompt} (Model: {request.model})")
         
         result = await meme_analyst.run(prompt)
