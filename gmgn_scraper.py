@@ -1,6 +1,7 @@
-from spoon_ai.tools import BaseTool
+from spoon_ai.tools.base import BaseTool, ToolResult
 from playwright.async_api import async_playwright
 import json
+from typing import Any, Dict
 
 class GmgnScraperTool(BaseTool):
     # Tool 的唯一标识符，Agent 通过这个名字调用
@@ -21,11 +22,11 @@ class GmgnScraperTool(BaseTool):
         "required": ["token_address"]
     }
 
-    async def execute(self, token_address: str):
+    async def execute(self, token_address: str) -> ToolResult:
         # 简单的安全校验：Solana 地址通常是 Base58 编码，长度 32-44
         import re
         if not re.match(r'^[1-9A-HJ-NP-Za-km-z]{32,44}$', token_address):
-            return "Error: Invalid Solana token address format."
+            return ToolResult(error="Error: Invalid Solana token address format.")
 
         url = f"https://gmgn.ai/sol/token/{token_address}"
         print(f"🥄 SpoonOS Tool: Navigating to {url}...")
@@ -57,12 +58,12 @@ class GmgnScraperTool(BaseTool):
                 # 简单清洗：去除过多空行
                 cleaned_content = "\n".join([line.strip() for line in content.split('\n') if line.strip()])
                 
-                # 截取前 4000 字符 (视 Context Window 而定，或者全部返回)
-                # 这里返回全部，由 Agent 自行决定如何处理
-                return cleaned_content
-
+                return ToolResult(
+                    output=cleaned_content,
+                    system="Successfully scraped GMGN data."
+                )
                 
             except Exception as e:
-                return f"Error scraping GMGN: {str(e)}"
+                return ToolResult(error=f"Error scraping GMGN: {str(e)}")
             finally:
                 await browser.close()
