@@ -26,7 +26,8 @@ async def main():
 
     # Test Run
     print("Testing Agent (Official SDK)...")
-    result = await meme_analyst.run("帮我看一下这个币的数据：HeLp6NuQkmYB4pYWo2zYs22mESHXPQYzXbB8n4V98jwC")
+    # Using real $WIF CA: EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm
+    result = await meme_analyst.run("帮我详细分析一下这个币：EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm ($WIF)")
     print(result)
 
 if __name__ == "__main__":
