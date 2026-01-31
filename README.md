@@ -14,6 +14,7 @@
 *   **Python 3.12**
 *   **uv**: 极速 Python 包管理器
 *   **Playwright**: 浏览器自动化
+*   **SpoonOS SDK**: 官方 AgentOS 框架
 *   **Google Gemini API**: 本地 LLM 推理
 
 ## 🚀 快速开始
@@ -46,7 +47,7 @@ uv run playwright install chromium
 
 ```bash
 # .env
-GOOGLE_API_KEY=your_gemini_api_key_here
+GEMINI_API_KEY=your_gemini_api_key_here
 ```
 
 ### 5. 运行 Agent
@@ -62,14 +63,9 @@ uv run main.py
 ```
 SpoonOSgetGMGN/
 ├── .env                # 环境变量 (不要上传!)
-├── .gitignore         
-├── gmgn_scraper.py     # 核心抓取工具 (Tool)
+├── .gitignore
+├── gmgn_scraper.py     # 核心抓取工具 (Tool) - 基于 spoon-ai-sdk
 ├── main.py             # 入口文件，定义 Agent 和流程
-├── spoon/              # SpoonOS SDK Mockup (模拟框架核心)
-│   ├── core/
-│   │   ├── agents.py   # Agent 基类
-│   │   ├── llm.py      # LLM 适配器 (Gemini/OpenAI) 
-│   │   └── tools.py    # Tool 基类
 ├── pyproject.toml      # 项目依赖配置
 └── uv.lock
 ```

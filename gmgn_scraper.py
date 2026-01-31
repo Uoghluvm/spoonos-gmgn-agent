@@ -1,16 +1,16 @@
-from spoon.core.tools import BaseTool
+from spoon_ai.tools import BaseTool
 from playwright.async_api import async_playwright
 import json
 
 class GmgnScraperTool(BaseTool):
     # Tool 的唯一标识符，Agent 通过这个名字调用
-    name = "get_gmgn_token_data"
+    name: str = "get_gmgn_token_data"
     
     # 描述 Tool 的功能，Prompt Engineering 的一部分
-    description = "Fetches real-time token data (price, volume, holders) from gmgn.ai for a given Solana token address."
+    description: str = "Fetches real-time token data (price, volume, holders) from gmgn.ai for a given Solana token address."
     
     # 定义参数结构 (JSON Schema)
-    parameters = {
+    parameters: dict = {
         "type": "object",
         "properties": {
             "token_address": {

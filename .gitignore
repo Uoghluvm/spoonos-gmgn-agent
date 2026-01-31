@@ -1,8 +1,3 @@
-# General
-.DS_Store
-.AppleDouble
-.LSOverride
-
 # Python
 __pycache__/
 *.py[cod]
@@ -36,16 +31,37 @@ ENV/
 env.bak/
 venv.bak/
 
-# IDEs
-.idea/
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# VS Code
 .vscode/
-*.swp
-*.swo
 
-# Playwright
-test-results/
-playwright-report/
-blob-report/
+# PyCharm
+.idea/
 
-# Logs
-*.log
+# Mac OS
+.DS_Store
+
+# SpoonOS specific
+.spoon/
+logs/
