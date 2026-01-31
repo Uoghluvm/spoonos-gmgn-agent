@@ -16,19 +16,44 @@ class GmgnScraperTool(BaseTool):
         "properties": {
             "token_address": {
                 "type": "string",
-                "description": "The Solana contract address (CA) of the token."
+                "description": "The contract address (CA) of the token."
+            },
+            "chain": {
+                "type": "string",
+                "enum": ["sol", "bsc", "eth", "base", "blast", "tron"],
+                "default": "sol",
+                "description": "The blockchain network code (e.g., sol, bsc, eth)."
             }
         },
         "required": ["token_address"]
     }
 
-    async def execute(self, token_address: str) -> ToolResult:
-        # 简单的安全校验：Solana 地址通常是 Base58 编码，长度 32-44
+    async def execute(self, token_address: str, chain: str = "sol") -> ToolResult:
         import re
-        if not re.match(r'^[1-9A-HJ-NP-Za-km-z]{32,44}$', token_address):
-            return ToolResult(error="Error: Invalid Solana token address format.")
+        
+        # 链与地址格式的校验逻辑
+        is_evm = chain in ["bsc", "eth", "base", "blast"]
+        is_sol = chain == "sol"
+        is_tron = chain == "tron"
 
-        url = f"https://gmgn.ai/sol/token/{token_address}"
+        valid = False
+        if is_sol:
+            # Solana: Base58, 32-44 chars
+            if re.match(r'^[1-9A-HJ-NP-Za-km-z]{32,44}$', token_address):
+                valid = True
+        elif is_evm:
+            # EVM: Hex, starts with 0x, 42 chars total
+            if re.match(r'^0x[a-fA-F0-9]{40}$', token_address):
+                valid = True
+        elif is_tron:
+            # Tron: Starts with T, 34 chars
+            if re.match(r'^T[a-zA-Z0-9]{33}$', token_address):
+                valid = True
+        
+        if not valid:
+            return ToolResult(error=f"Error: Invalid token address format for chain '{chain}'.")
+
+        url = f"https://gmgn.ai/{chain}/token/{token_address}"
         print(f"🥄 SpoonOS Tool: Navigating to {url}...")
         
         async with async_playwright() as p:
