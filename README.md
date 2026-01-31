@@ -5,7 +5,7 @@
 ![Chrome Extension](https://img.shields.io/badge/Chrome-Extension-googlechrome.svg)
 ![License](https://img.shields.io/badge/License-MIT-yellow.svg)
 
-**SpoonOS GMGN Analyst** 是一个基于 [SpoonOS](https://github.com/spoon-os) 官方 SDK 构建的 AI Agent 工具套件。
+**SpoonOS GMGN Analyst** 是一个基于 [SpoonOS](https://xspoonai.github.io/) 官方 SDK 构建的 AI Agent 工具套件。
 
 它不仅提供开发者友好的 Python CLI 工具，更包含一个强大的 **Chrome 侧边栏插件**，让你在浏览 [GMGN.ai](https://gmgn.ai) 时，一键调用 **Google Gemini** 模型生成深度的基本面投资研报。
 
@@ -117,4 +117,4 @@ SpoonOSgetGMGN/
 
 ---
 
-*Powered by [SpoonOS](https://spoon.os)*
+*Powered by [SpoonOS](https://xspoonai.github.io/)*
