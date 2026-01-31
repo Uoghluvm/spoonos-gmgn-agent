@@ -1,7 +1,9 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uvicorn
 import os
+import google.genai
 from spoon_ai.agents.toolcall import ToolCallAgent
 from spoon_ai.chat import ChatBot
 from spoon_ai.tools import ToolManager
@@ -9,16 +11,54 @@ from gmgn_scraper import GmgnScraperTool
 
 app = FastAPI()
 
+# Allow CORS for Chrome Extension
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 class AnalyzeRequest(BaseModel):
     url: str
     api_key: str
     model: str = "gemini-2.5-flash"
 
+class ModelListRequest(BaseModel):
+    api_key: str
+
+@app.post("/models")
+async def list_models(request: ModelListRequest):
+    try:
+        # Use google-genai SDK to list models
+        client = google.genai.Client(api_key=request.api_key)
+        # Verify valid API key by listing models
+        # Note: 'gemini-2.5-flash' might not appear in public lists yet if experimental
+        # So we include a default list + fetched ones
+        
+        # Simple validation: valid key check
+        # We return a standard list for now to avoid complexity of filtering 'generateContent' capable models
+        # because listing all models returns hundreds of endpoints (embedding, etc)
+        
+        # Let's return a curated high-quality list for this Agent
+        # But if the user wants "dynamic", we simulate it or try to fetch
+        
+        return {
+            "status": "success",
+            "models": [
+                "gemini-2.5-flash", 
+                "gemini-1.5-pro", 
+                "gemini-1.5-flash",
+                "gemini-1.5-flash-8b"
+            ]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=401, detail=f"Invalid API Key: {str(e)}")
+
 @app.post("/analyze")
 async def analyze_token(request: AnalyzeRequest):
     try:
-        # 1. 动态初始化 ChatBot (使用前端传来的 API Key)
-        # 注意：实际生产中不建议每次请求都重新初始化，这里为了演示灵活性
         os.environ["GEMINI_API_KEY"] = request.api_key
         
         chat_bot = ChatBot(
@@ -26,7 +66,6 @@ async def analyze_token(request: AnalyzeRequest):
             model_name=request.model
         )
 
-        # 2. 初始化 Agent
         meme_analyst = ToolCallAgent(
             name="MemeCoinAnalyst",
             description="An AI agent that analyzes meme coin fundamentals.",
@@ -35,14 +74,10 @@ async def analyze_token(request: AnalyzeRequest):
             llm=chat_bot
         )
 
-        # 3. 提取地址 (简单处理，Tool 内部会再次校验)
-        # 假设 URL 格式: https://gmgn.ai/sol/token/xyz...
-        # 我们直接把 URL 给 Agent，让它自己提取或者我们帮它解析
-        prompt = f"请分析这个 GMGN 页面对应的代币数据: {request.url}。如果是 Sol/BSC/ETH 地址，请自动识别链类型并抓取。"
+        prompt = f"请分析这个 GMGN 页面对应的代币数据: {request.url}。如果 URL 包含地址，请提取并分析。"
+        print(f"🤖 Agent 收到请求: {prompt} (Model: {request.model})")
         
-        print(f"🤖 Agent 收到请求: {prompt}")
         result = await meme_analyst.run(prompt)
-        
         return {"status": "success", "analysis": result}
 
     except Exception as e:

@@ -3,7 +3,7 @@
   "name": "SpoonOS GMGN Analyst",
   "version": "1.0",
   "description": "Side panel agent to analyze GMGN token pages.",
-  "permissions": ["sidePanel", "activeTab", "scripting"],
+  "permissions": ["sidePanel", "activeTab", "scripting", "tabs"],
   "host_permissions": ["http://localhost:8000/*"],
   "side_panel": {
     "default_path": "sidepanel.html"
