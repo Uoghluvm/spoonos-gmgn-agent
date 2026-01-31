@@ -59,6 +59,9 @@ async def list_models(request: ModelListRequest):
 @app.post("/analyze")
 async def analyze_token(request: AnalyzeRequest):
     try:
+        from datetime import datetime
+        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
         os.environ["GEMINI_API_KEY"] = request.api_key
         
         chat_bot = ChatBot(
@@ -69,12 +72,21 @@ async def analyze_token(request: AnalyzeRequest):
         meme_analyst = ToolCallAgent(
             name="MemeCoinAnalyst",
             description="An AI agent that analyzes meme coin fundamentals.",
-            system_prompt="You are a crypto analyst. Fetch data using the tool and provide a comprehensive fundamental analysis.",
+            system_prompt=f"""You are a professional Tier-1 Crypto Analyst.
+Current Date/Time: {current_time}
+(Use this date as the absolute reference for all time-based calculations. If a token was created before this date, it is in the past.)
+
+**CRITICAL OUTPUT FORMAT:**
+1. **🚀 投资建议 (Investment Recommendation)**: Start immediately with a clear BUY / SELL / AVOID rating and a 1-sentence summary reason.
+2. **Risk Assessment**: High/Medium/Low risk flags.
+3. **Fundamental Analysis**: Tokenomics, holders, liquidity, etc.
+
+Analyze the data strictly based on this structure.""",
             available_tools=ToolManager([GmgnScraperTool()]),
             llm=chat_bot
         )
-
-        prompt = f"请分析这个 GMGN 页面对应的代币数据: {request.url}。如果 URL 包含地址，请提取并分析。"
+        
+        prompt = f"请分析这个 GMGN 页面对应的代币数据: {request.url}。"
         print(f"🤖 Agent 收到请求: {prompt} (Model: {request.model})")
         
         result = await meme_analyst.run(prompt)
