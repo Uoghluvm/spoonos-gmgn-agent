@@ -66,9 +66,10 @@ getElement('analyzeBtn').addEventListener('click', async () => {
         const data = await response.json();
         
         if (data.analysis) {
-            resultDiv.textContent = data.analysis;
+            // Render Markdown
+            resultDiv.innerHTML = marked.parse(data.analysis);
         } else {
-            resultDiv.textContent = "Error: " + (data.detail || JSON.stringify(data));
+            resultDiv.innerHTML = `<span style="color:red">Error: ${data.detail || JSON.stringify(data)}</span>`;
         }
 
     } catch (err) {
